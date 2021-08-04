@@ -9,3 +9,6 @@ PART 1: image analisys in Fiji
 PART 2: data analysis in R
 
 
+PART 1 can be conducted with two different macros, depending on whether we are dealing with a single-channel or dual-channel image series. Dual-channel macro allows to register the image series based on one channel of choice and to apply the same transformation matrix to the other channel.
+
+
