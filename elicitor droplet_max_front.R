@@ -7,7 +7,7 @@
 
 #Author: Annalisa Bellandi, Faulkner group (John Innes centre)
 
-#Title: Local response to elicitors
+#Title: Local response to elicitors or trichome bending
 
 #Content: given data output of the custion radial scan with central exclusion
 #calculates average profile of the sginal at each time point across all radii
