@@ -1,12 +1,20 @@
-#------------------------------------------------------------------------------------------------------------------------
-#--------------------------------------- Detection of wave-max along the profile --------------------------------------
-#-----------------------------------------------------------------------------------------------------------------------
 
-#Unite all v 2
-#Date: 26/04/2020
-#Author: Annalisa Bellandi, Faulkner group
+#Author: Annalisa Bellandi, Faulkner group (John Innes centre)
 
-#----------------------------------------------------------------------------------------------------------------------
+#Title: Peak and front detection after costum radial scan with central exclusion
+
+#Content: given data output of the costum radila scan with central exclusion fiji macro
+#retrieves number of radii and area of the central exclusion
+#calculates average profile of the sginal at each time point across all radii
+#calculates and accounts for delay between the application of teh stimulus and the detection of the response
+#detects peak and front of the wave
+#outputs polynomials to describe the distance reached by the signal over time and its velcoity over time for each replicate of each genotype
+
+
+
+##-------------------------------------------------------------------------------------------------------------------------
+##------------------------------------------ packages needed  --------------------------------------------------------------
+##------------------------------------------------------------------------------------------------------------------------------
 
 #packages needed
 library('rlang')
@@ -20,9 +28,14 @@ library("ggplot2")
 library("zoo")
 library("RColorBrewer")
 library("svglite")
+library('ggsignif')
+library('ggpubr')
 
-#---------------------------------------------------------------------------------------------------------------------
-# set colour palettes
+
+##-------------------------------------------------------------------------------------------------------------------------
+##------------------------------------------ set my colour palette --------------------------------------------------------------
+##------------------------------------------------------------------------------------------------------------------------------
+
 my_pal_div <- RColorBrewer::brewer.pal(11, "BrBG")[2:11]
 my_pal_quant_1 <- RColorBrewer::brewer.pal(9, "Oranges")
 my_pal_quant_2 <- RColorBrewer::brewer.pal(9, "Blues")
@@ -70,10 +83,46 @@ my_colors_plot <- ggplot(long_color, aes(x = palette, y = order, fill = color)) 
 my_colors_plot
 
 
-##-------------------------------------------------------------------------------------------------------------------------
-##------------------------------------------ defining FUNCTIONS --------------------------------------------------------------
-##------------------------------------------------------------------------------------------------------------------------------
 
+
+##=======================================================================================================================
+##=======================================  to manually set before starting  ====================================================
+
+EXP <- '...' #experiment name
+
+
+experiment_folder <- "..." #path to the folder that contains all genotypes folder
+
+
+genotype1 <- "..." #path to the folder that contains data for teh genotype 1
+
+GEN1 <-  "..." #name of the genotype 1 as it is in displayed the files
+
+
+
+genotype2 <- "..." #path to the folder that contains data for teh genotype 2
+
+GEN2 <-  "..." #name of the genotype 2 as it is in displayed the files
+
+
+
+
+CON <- "..." #condition of the experiment (ie cotyleodns or detached leaves... etc)
+
+
+
+#---------Things to adjust only if necessary: decide the optimal spans, window width and treshold
+w=4
+span1=0.2 
+span2=0.5
+treshold <- 1.96
+
+#note there is no pre-defined number of radii, number of radii are stored in the fiji output and retrieved for each sample
+
+##=============================================================================================================================
+##-----------------------------------------------------------------------------------------------------------------------------
+##------------------------------------------ defining FUNCTIONS ---------------------------------------------------------------
+##-----------------------------------------------------------------------------------------------------------------------------
 
 #----------------------------------------- FUNCTION 1
 
@@ -940,35 +989,11 @@ Fit_negative_exponential <- function (df_maxima, my_pal_gray, base_plot) {
 
 
 
-
 ##----------------------------------------------------------------------------------------------------------
 ##-------------------------------------------- end of functions ---------------------------------------------------
 ##-------------------------------------------------------------------------------------------------------
 
 
-## things to adjust for each experiment
-
-EXP <- "trichome slap"
-
-experiment_folder <- "//nbi-cfs2/shared/Research-Groups/Christine-Faulkner/Annalisa/trichomes/iglu/exp4/analysis 5"
-
-
-genotype1 <- "//nbi-cfs2/shared/Research-Groups/Christine-Faulkner/Annalisa/trichomes/iglu/exp4/analysis 5/rgeco"
-
-GEN1 <-  "rgeco"
-
-
-genotype2 <- "//nbi-cfs2/shared/Research-Groups/Christine-Faulkner/Annalisa/trichomes/iglu/exp4/analysis 5/iglu"
-
-GEN2 <-  "iglu"
-
-CON <- 'trueleaf'
-
-#---------Things to adjust only if necessary: decide the optimal spans, window width and treshold
-w=4
-span1=0.2
-span2=0.5
-treshold <- 1.96
 
 #---------loops that run on all folders on all plants on all data points
 
@@ -1354,11 +1379,6 @@ for (f in folders) {
     Drop_k <- data.frame(cbind(Drop_k, vol_ul))
     
     
-    
-    
-    
-    
-    
   ##---------------------------------------------------------------------------------------------------------    
   #----------------basic plot of position of the front from the centre over time
   
@@ -1556,13 +1576,6 @@ for (f in folders) {
   writeData(workbook_coeff_poly6_front, GEN , coeff_poly6_total_front)
   saveWorkbook(workbook_coeff_poly6_front, file=(paste(EXP, "coeff_6_front", ".xlsx")), overwrite = TRUE)
   
-
-
   
 } #this closes for f in folders
 
-
-#in practice I say that there are two cases when there is no delay:1)wave starts immediately 2)wave neves starts. 
-#I identify a wave that neves starts in two different ways a) the max stays at the same spot always (var=0)
-#                                                          b) the max moves, but very late in time, which most liley then is not a wave but just a mistake in the detection in noisy times
-#
